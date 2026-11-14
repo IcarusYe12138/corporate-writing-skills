@@ -62,7 +62,7 @@ echo
 if [[ -n "$ONLY" ]]; then
   install_one "$ONLY"
 else
-  for name in corporate-writing-skills guardian-style-writing humanizer; do
+  for name in corporate-writing-skills guardian-style-writing humanizer humanizer-zh; do
     install_one "$name"
   done
 fi
@@ -71,5 +71,6 @@ echo
 echo "Done. Verify with:"
 echo "  ls \"$TARGET\""
 echo
-echo "Note: humanizer is MIT-licensed by Siqi Chen. Its LICENSE is bundled at"
-echo "      $TARGET/humanizer/LICENSE"
+echo "Licences: humanizer is MIT by Siqi Chen; humanizer-zh is MIT by Guizang"
+echo "          (a Chinese translation of blader/humanizer). Both LICENSE files"
+echo "          travel with their bundled copies."

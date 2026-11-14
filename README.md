@@ -8,9 +8,9 @@ English | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-TW.md)
 ![Genres](https://img.shields.io/badge/Genres-8%20Templates-2F2FE4?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-2F2FE4?style=flat-square)
 
-A bundled agent-skill suite for corporate and organisational communication: stakeholder analysis, genre routing, principled drafting, and four-layer revision across eight recurring genres — with Guardian-style English register and anti-AI polish included, so one clone is enough.
+A bundled agent-skill suite for corporate and organisational communication: stakeholder analysis, genre routing, principled drafting, and four-layer revision across eight recurring genres — with Guardian-style English register and anti-AI polish in both English and Chinese included, so one clone is enough.
 
-Released under the [MIT License](LICENSE). The bundled `humanizer` skill is MIT-licensed by [Siqi Chen](https://github.com/blader/humanizer); its licence is preserved at `skills/humanizer/LICENSE`.
+Released under the [MIT License](LICENSE). Two bundled skills come from other authors: `humanizer` is MIT by [Siqi Chen](https://github.com/blader/humanizer), and `humanizer-zh` is MIT by [歸藏](https://github.com/op7418/Humanizer-zh). Both licences are preserved alongside their copies.
 
 `Corporate Writing Skills` treats corporate writing as **communication design**, not prose polish. The order is fixed: purpose → stakeholders → content → tone. Every task runs through five phases, and the phase you cannot skip is the one that decides who is reading and what they need to do.
 
@@ -18,43 +18,57 @@ Most writing tools give you a template. This one gives you a decision procedure.
 
 ## What It Does
 
-- Bundles three composable skills that install together and run as one pipeline
+- Bundles four composable skills that install together and run as one pipeline
 - Routes any corporate writing task to the right genre template through an explicit decision table
 - Applies audience analysis (O1–O5) before drafting, so tone follows from evidence rather than taste
 - Handles multi-stakeholder and crisis scenarios with a power-interest matrix and a per-audience writing canvas
 - Enforces a five-principle drafting standard with a concrete hedge-word deletion list
 - Runs revisions in four ordered layers (content → structure → style → proofreading) instead of mixing them
 - Switches English output to a Guardian-style editorial register without changing the genre underneath
-- Strips AI-writing tells in a final pass while holding the established register
+- Strips AI-writing tells in a final pass in **both English and Chinese**, each with language-specific rules
 - Produces bilingual output as adaptation rather than translation, with per-variant notes on what changed and why
 
-## The Three Skills
+## The Four Skills
 
 | Skill | Role in the pipeline | Source |
 |---|---|---|
 | `corporate-writing-skills` | Purpose, audience, stakeholder adaptation, genre and structure, revision discipline | This repository |
 | `guardian-style-writing` | English register: narrative progression, restraint, house style (punctuation, numbers, quotes) | This repository |
-| `humanizer` | Final anti-AI pass: removes formulaic phrasing and rhythm without flattening the register | [blader/humanizer](https://github.com/blader/humanizer), MIT |
+| `humanizer` | Final anti-AI pass, English | [blader/humanizer](https://github.com/blader/humanizer), MIT |
+| `humanizer-zh` | Final anti-AI pass, Chinese | [op7418/Humanizer-zh](https://github.com/op7418/Humanizer-zh), MIT |
 
-The pipeline is ordered, not optional:
+The pipeline branches by output language:
 
 ```text
 [request]
    │
    ▼
-1. corporate-writing-skills   Phases 1–3
+① corporate-writing-skills ── Phases 1–3
    │  purpose, audience, stakeholder layers, genre skeleton
-   ▼
-2. guardian-style-writing     Phase 4, English only
-   │  editorial register, house style, de-jargonising
-   ▼
-3. humanizer                  Phase 5
-   │  remove AI tells, keep the genre intact
+   │
+   ├──────────── English ─────────────┐
+   │                                  │
+   ▼                                  │
+② guardian-style-writing ── Phase 4   │
+   │  editorial register, house style│
+   ▼                                  │
+③ humanizer ── Phase 5                │
+   │  remove English AI tells        │
+   │                                  │
+   └──────────────┬───────────────────┘
+                  │
+   ┌──────────────┴───────────────┐
+   │                              │
+   ▼  (Chinese output only)       ▼
+④ humanizer-zh ── Phase 5      [pre-delivery checklist]
+   │  remove Chinese AI tells
    ▼
 [pre-delivery checklist]
 ```
 
-Stages 2 and 3 apply only when the output is English. Chinese output runs stage 1 and then goes straight to the four-layer revision. Each skill also works standalone — pass `--only` to install one.
+Guardian register is English-only, so Chinese output skips stage 2 and goes straight to its own anti-AI pass. Never cross the two humanizers: English rules about em dashes and passive voice do not apply to Chinese, and Chinese rules about 三段式 and 否定式排比 do not catch English filler.
+
+Each skill also works standalone — pass `--only` to install one.
 
 ## Why It Exists
 
@@ -79,14 +93,14 @@ For high-stakes texts (proposals, crisis statements, public announcements), conf
 git clone https://github.com/IcarusYe12138/corporate-writing-skills.git
 cd corporate-writing-skills
 
-# 2. Install all three skills (default target: ~/.agents/skills)
+# 2. Install all four skills (default target: ~/.agents/skills)
 ./install.sh
 
 # 3. Verify
 ls ~/.agents/skills
 ```
 
-The installer copies `corporate-writing-skills`, `guardian-style-writing`, and `humanizer` into your skills directory. It backs up anything it would overwrite instead of deleting it.
+The installer copies `corporate-writing-skills`, `guardian-style-writing`, `humanizer`, and `humanizer-zh` into your skills directory. It backs up anything it would overwrite instead of deleting it.
 
 ```bash
 # Install into Claude Code's directory instead
@@ -133,7 +147,7 @@ Draft a 150-word decision memo to the CEO on a Hong Kong AI customer-service pil
 
 ```text
 corporate-writing-skills/
-├── install.sh                  # one-command installer for all three skills
+├── install.sh                  # one-command installer for all four skills
 ├── skills/
 │   ├── corporate-writing-skills/
 │   │   ├── SKILL.md            # five-phase workflow, genre routing table, checklist
@@ -146,18 +160,24 @@ corporate-writing-skills/
 │   │       ├── c-level-writing.md         # three modes, authorship, BLUF, FIIA
 │   │       ├── social-media-writing.md    # discovery paths, zero-click, GEO, AI disclosure
 │   │       ├── brand-storytelling.md      # five elements, hero's journey, failure modes
-│   │       └── guardian-extension.md      # how the three skills divide the work
+│   │       └── guardian-extension.md      # how the skills divide the work
 │   ├── guardian-style-writing/
 │   │   ├── SKILL.md
 │   │   └── references/
 │   │       ├── house-style.md             # punctuation, numbers, caps, quotes
 │   │       ├── narrative.md               # narrative progression and restraint
 │   │       └── apply-without-newsroom.md  # using the register outside journalism
-│   └── humanizer/                         # MIT, by Siqi Chen
+│   ├── humanizer/                         # MIT, by Siqi Chen — English anti-AI pass
+│   │   ├── SKILL.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── WARP.md
+│   │   └── BUNDLED.md                     # upstream and update path
+│   └── humanizer-zh/                      # MIT, by Guizang — Chinese anti-AI pass
 │       ├── SKILL.md
 │       ├── LICENSE
 │       ├── README.md
-│       └── WARP.md
+│       └── BUNDLED.md                     # upstream and update path
 ├── LICENSE
 └── README.md / README.zh-CN.md / README.zh-TW.md
 ```
@@ -170,9 +190,9 @@ corporate-writing-skills/
 
 **Facts are never invented.** Missing data becomes an explicit `[待填：XXX]` placeholder. Simulated or practice scenarios must be labelled as such. Numbers without a traceable source are treated as a liability, not as support.
 
-**The three skills degrade cleanly.** `guardian-style-writing` and `humanizer` are enhancements to the English path, bundled here so that one clone is self-sufficient. If you install only `corporate-writing-skills`, the five-phase workflow and the four-layer revision still run; the skill notes in delivery that no Guardian or anti-AI pass was applied.
+**The pipelined skills degrade cleanly.** `guardian-style-writing` and both humanizers are enhancements, bundled here so that one clone is self-sufficient. If you install only `corporate-writing-skills`, the five-phase workflow and the four-layer revision still run; the skill notes in delivery that no Guardian or anti-AI pass was applied.
 
-**Bundled code keeps its own licence.** `humanizer` is redistributed unmodified under the MIT licence of its author, with the original `LICENSE` file intact. This repository's own MIT licence covers `corporate-writing-skills` and `guardian-style-writing`.
+**Bundled code keeps its own licence.** `humanizer` and `humanizer-zh` are redistributed unmodified under their authors' MIT licences, with the original `LICENSE` files intact and `BUNDLED.md` noting upstream and update paths. This repository's own MIT licence covers `corporate-writing-skills` and `guardian-style-writing`.
 
 ## Notes
 
@@ -184,5 +204,6 @@ corporate-writing-skills/
 ## Credits
 
 - `humanizer` — MIT, [Siqi Chen](https://github.com/blader/humanizer). Redistributed unmodified with its licence intact.
+- `humanizer-zh` — MIT, [歸藏](https://github.com/op7418/Humanizer-zh), a Chinese translation of `blader/humanizer` drawing on [hardikpandya/stop-slop](https://github.com/hardikpandya/stop-slop). Redistributed unmodified with its licence intact.
 - `guardian-style-writing` — authored for this bundle, drawing on [The Guardian style guide](https://www.theguardian.com/guardian-observer-style-guide-a).
 - `corporate-writing-skills` — authored for this bundle.

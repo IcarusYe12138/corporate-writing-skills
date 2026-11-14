@@ -8,9 +8,9 @@
 ![Genres](https://img.shields.io/badge/Genres-8%20Templates-2F2FE4?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-2F2FE4?style=flat-square)
 
-企業傳播寫作與審查技能套件：持份者分析、文體路由、原則化起草、四層修訂——涵蓋商務電郵、內部公告、新聞稿、商業提案、危機聲明、C 層溝通、社交媒體文案與品牌故事。內建衛報體例英文語域與去 AI 腔終審，**clone 一次即可直接用**。
+企業傳播寫作與審查技能套件：持份者分析、文體路由、原則化起草、四層修訂——涵蓋商務電郵、內部公告、新聞稿、商業提案、危機聲明、C 層溝通、社交媒體文案與品牌故事。內建衛報體例英文語域，以及**中英雙語**的去 AI 腔終審，clone 一次即可直接用。
 
-以 [MIT 授權條款](LICENSE) 發佈。內建的 `humanizer` 採用 [Siqi Chen](https://github.com/blader/humanizer) 的 MIT 授權，原始授權保留於 `skills/humanizer/LICENSE`。
+以 [MIT 授權條款](LICENSE) 發佈。其中兩個技能來自他人：`humanizer` 為 [Siqi Chen](https://github.com/blader/humanizer) 的 MIT 項目，`humanizer-zh` 為 [歸藏](https://github.com/op7418/Humanizer-zh) 的 MIT 項目。兩份授權均隨各自副本完整保留。
 
 `Corporate Writing Skills` 把企業寫作視為**傳播設計**，而非文字潤飾。順序是固定的：目的 → 持份者 → 內容 → 語氣。每個任務走五個階段，唯一不能省的那一步，是決定「誰在讀、讀完要做甚麼」。
 
@@ -18,43 +18,56 @@
 
 ## 它能做甚麼
 
-- 打包三個可組合技能，一次安裝、按固定順序協同運行
+- 打包四個可組合技能，一次安裝、按固定順序協同運行
 - 透過明確的決策表，把任何企業寫作任務路由到對應的文體範本
 - 起草前執行受眾分析（O1–O5），讓語氣由證據推導而非個人偏好
 - 以權力-利益矩陣與逐群體寫作畫布處理多受眾與危機場景
 - 以五條原則約束初稿，並提供可執行的削弱詞刪除清單
 - 按四層順序修訂（內容 → 結構 → 風格 → 校對），不混著改
 - 把英文輸出切到衛報編輯語域，但不改變底下的文體載體
-- 最後一輪清除 AI 寫作痕跡，同時守住已定語域
+- 最後一輪**中英文各自**去除 AI 寫作痕跡，各自用對應語言的規則
 - 雙語輸出做「調適」而非「翻譯」，並逐版本說明關鍵調適點
 
-## 三個技能
+## 四個技能
 
 | 技能 | 在流水線中的職責 | 來源 |
 |---|---|---|
 | `corporate-writing-skills` | 目的、受眾、持份者適配、文體與結構、修訂紀律 | 本倉庫 |
 | `guardian-style-writing` | 英文語域：敘事推進、用詞克制、報社體例（標點、數字、引語） | 本倉庫 |
-| `humanizer` | 終審去 AI 腔：清除套路短語與公式化節奏，不壓平語域 | [blader/humanizer](https://github.com/blader/humanizer)，MIT |
+| `humanizer` | 去 AI 腔終審，英文 | [blader/humanizer](https://github.com/blader/humanizer)，MIT |
+| `humanizer-zh` | 去 AI 腔終審，中文 | [op7418/Humanizer-zh](https://github.com/op7418/Humanizer-zh)，MIT |
 
-流水線是有序的，不是可選的：
+流水線按**輸出語言**分叉：
 
 ```text
 [需求]
    │
    ▼
-1. corporate-writing-skills   Phase 1–3
+① corporate-writing-skills ── Phase 1–3
    │  目的、受眾、持份者分層、文體骨架
-   ▼
-2. guardian-style-writing     Phase 4，僅英文
-   │  編輯語域、報社體例、去套話
-   ▼
-3. humanizer                  Phase 5
-   │  去除 AI 痕跡，文體載體不變
+   │
+   ├──────────── 英文 ─────────────┐
+   │                               │
+   ▼                               │
+② guardian-style-writing ── Phase 4│
+   │  編輯語域、報社體例            │
+   ▼                               │
+③ humanizer ── Phase 5             │
+   │  去除英文 AI 痕跡              │
+   └──────────────┬────────────────┘
+                  │
+   ┌──────────────┴───────────────┐
+   │                              │
+   ▼（僅中文輸出）                 ▼
+④ humanizer-zh ── Phase 5     [交付前清單]
+   │  去除中文 AI 痕跡
    ▼
 [交付前清單]
 ```
 
-第 2、3 階段只在輸出英文時適用。中文輸出走完第 1 階段後直接進入四層修訂。三個技能也都能單獨使用——用 `--only` 只裝其中一個。
+衛報語域只作用於英文，所以中文輸出跳過第 ② 步，直接進入自己的終審。**兩個 humanizer 絕不能交叉使用**：英文關於破折號與被動語態的規則對中文沒有意義，中文關於三段式與否定式排比的規則也攔不住英文套話。
+
+四個技能也都能單獨使用——用 `--only` 只裝其中一個。
 
 ## 為何存在
 
@@ -79,14 +92,14 @@
 git clone https://github.com/IcarusYe12138/corporate-writing-skills.git
 cd corporate-writing-skills
 
-# 2. 一鍵安裝三個技能（預設目標：~/.agents/skills）
+# 2. 一鍵安裝四個技能（預設目標：~/.agents/skills）
 ./install.sh
 
 # 3. 確認
 ls ~/.agents/skills
 ```
 
-安裝腳本會把 `corporate-writing-skills`、`guardian-style-writing`、`humanizer` 一併複製到你的 skills 目錄。遇到同名目錄時先備份而不是刪除。
+安裝腳本會把 `corporate-writing-skills`、`guardian-style-writing`、`humanizer`、`humanizer-zh` 一併複製到你的 skills 目錄。遇到同名目錄時先備份而不是刪除。
 
 ```bash
 # 裝到 Claude Code 的目錄
@@ -133,7 +146,7 @@ cp -R skills/* ~/.agents/skills/
 
 ```text
 corporate-writing-skills/
-├── install.sh                  # 三個技能的一鍵安裝腳本
+├── install.sh                  # 四個技能的一鍵安裝腳本
 ├── skills/
 │   ├── corporate-writing-skills/
 │   │   ├── SKILL.md            # 五階段工作流程、文體路由表、交付清單
@@ -146,18 +159,24 @@ corporate-writing-skills/
 │   │       ├── c-level-writing.md         # 三種模式、署名、BLUF、FIIA
 │   │       ├── social-media-writing.md    # 發現路徑、零點擊、GEO、AI 披露
 │   │       ├── brand-storytelling.md      # 五要素、英雄之旅、失敗模式
-│   │       └── guardian-extension.md      # 三技能如何分工
+│   │       └── guardian-extension.md      # 各技能如何分工
 │   ├── guardian-style-writing/
 │   │   ├── SKILL.md
 │   │   └── references/
 │   │       ├── house-style.md             # 標點、數字、大小寫、引號
 │   │       ├── narrative.md               # 敘事推進與克制
 │   │       └── apply-without-newsroom.md  # 在新聞業之外使用該語域
-│   └── humanizer/                         # MIT，作者 Siqi Chen
+│   ├── humanizer/                         # MIT，Siqi Chen —— 英文去 AI 腔
+│   │   ├── SKILL.md
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   ├── WARP.md
+│   │   └── BUNDLED.md                     # 上游位址與更新方式
+│   └── humanizer-zh/                      # MIT，歸藏 —— 中文去 AI 腔
 │       ├── SKILL.md
 │       ├── LICENSE
 │       ├── README.md
-│       └── WARP.md
+│       └── BUNDLED.md                     # 上游位址與更新方式
 ├── LICENSE
 └── README.md / README.zh-CN.md / README.zh-TW.md
 ```
@@ -170,9 +189,9 @@ corporate-writing-skills/
 
 **事實從不虛構。** 缺失資料寫成明確的 `[待填：XXX]` 佔位符；模擬或練習場景必須標註。沒有可追溯來源的數字按負債處理，而不是按論據處理。
 
-**三個技能可以單獨降級運行。** `guardian-style-writing` 與 `humanizer` 是英文路徑上的增強項，打包進來是為了讓一次 clone 就自足。如果只裝了 `corporate-writing-skills`，五階段工作流程與四層修訂照常運行，並在交付時說明未做衛報體例與去 AI 腔終審。
+**協同技能可以單獨降級運行。** `guardian-style-writing` 與兩個 humanizer 都是增強項，打包進來是為了讓一次 clone 就自足。如果只裝了 `corporate-writing-skills`，五階段工作流程與四層修訂照常運行，並在交付時說明未做衛報體例與去 AI 腔終審。
 
-**內建程式碼保留原有授權。** `humanizer` 按作者 MIT 授權原樣再分發，原始 `LICENSE` 完整保留。本倉庫自己的 MIT 授權覆蓋 `corporate-writing-skills` 與 `guardian-style-writing`。
+**內建程式碼保留原有授權。** `humanizer` 與 `humanizer-zh` 均按作者 MIT 授權原樣再分發，原始 `LICENSE` 完整保留，並附 `BUNDLED.md` 標註上游與更新路徑。本倉庫自己的 MIT 授權覆蓋 `corporate-writing-skills` 與 `guardian-style-writing`。
 
 ## 備註
 
@@ -184,5 +203,6 @@ corporate-writing-skills/
 ## 致謝
 
 - `humanizer` —— MIT，[Siqi Chen](https://github.com/blader/humanizer)。原樣再分發，授權完整保留。
+- `humanizer-zh` —— MIT，[歸藏](https://github.com/op7418/Humanizer-zh)，為 `blader/humanizer` 的中文譯本，並參考 [hardikpandya/stop-slop](https://github.com/hardikpandya/stop-slop)。原樣再分發，授權完整保留。
 - `guardian-style-writing` —— 為本套件撰寫，取材自 [The Guardian style guide](https://www.theguardian.com/guardian-observer-style-guide-a)。
 - `corporate-writing-skills` —— 為本套件撰寫。
