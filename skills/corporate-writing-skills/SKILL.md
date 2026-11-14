@@ -125,7 +125,7 @@ description: 企业传播写作与审查。当用户需要撰写、改写或审�
 当涉及英文写作，且用户要求或偏好 **Guardian style（卫报风格/体例）**，或需要严肃、克制的英式主流媒体语域时：
 - **默认三技能协同**：文体与骨架由本技能（Phase 1–3）决定，起草与体例（Phase 4）路由至 `guardian-style-writing`（严格执行其标点、数字、大小写与去新闻化禁则），交付前（Phase 5）由 `humanizer` 进行去 AI 腔终审。除非用户明确要求单项调用，三技能默认协同执行。
 - **分工底线**：`guardian-style-writing` 是本技能的英文语域延伸，不改变本技能所确立的文体载体（邮件依旧是邮件，备忘依旧是备忘，绝不因引入卫报体例而自动写成倒金字塔新闻稿）。
-- **单技能环境下的降级**：若环境中未安装 `guardian-style-writing` 或 `humanizer`，本技能独立可用——Phase 1–3 与 Phase 5 的四层修订不依赖它们。此时英文语域按 `references/press-release.md` 与本节的双语规则自行执行，并在交付时说明"未做卫报体例终审"。三技能协同是增强项，不是前置条件。
+- **单技能环境下的降级**：本套件已内置 `guardian-style-writing` 与 `humanizer`，正常情况下三技能同时可用。若只安装了本技能（`./install.sh --only corporate-writing-skills`），本技能独立可用——Phase 1–3 与 Phase 5 的四层修订不依赖它们。此时英文语域按 `references/guardian-extension.md` 与本节的双语规则自行执行，并在交付时说明"未做卫报体例与去 AI 腔终审"。三技能协同是增强项，不是前置条件。
 
 ## AI 使用边界（AI + Craft）
 

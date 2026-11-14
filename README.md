@@ -8,9 +8,9 @@ English | [简体中文](README.zh-CN.md) | [繁體中文](README.zh-TW.md)
 ![Genres](https://img.shields.io/badge/Genres-8%20Templates-2F2FE4?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-2F2FE4?style=flat-square)
 
-A skill for corporate and organisational communication: stakeholder analysis, genre routing, principled drafting, and four-layer revision — for emails, announcements, press releases, proposals, crisis statements, C-level briefs, social posts, and brand narratives.
+A bundled agent-skill suite for corporate and organisational communication: stakeholder analysis, genre routing, principled drafting, and four-layer revision across eight recurring genres — with Guardian-style English register and anti-AI polish included, so one clone is enough.
 
-Released under the [MIT License](LICENSE).
+Released under the [MIT License](LICENSE). The bundled `humanizer` skill is MIT-licensed by [Siqi Chen](https://github.com/blader/humanizer); its licence is preserved at `skills/humanizer/LICENSE`.
 
 `Corporate Writing Skills` treats corporate writing as **communication design**, not prose polish. The order is fixed: purpose → stakeholders → content → tone. Every task runs through five phases, and the phase you cannot skip is the one that decides who is reading and what they need to do.
 
@@ -18,12 +18,43 @@ Most writing tools give you a template. This one gives you a decision procedure.
 
 ## What It Does
 
+- Bundles three composable skills that install together and run as one pipeline
 - Routes any corporate writing task to the right genre template through an explicit decision table
 - Applies audience analysis (O1–O5) before drafting, so tone follows from evidence rather than taste
 - Handles multi-stakeholder and crisis scenarios with a power-interest matrix and a per-audience writing canvas
 - Enforces a five-principle drafting standard with a concrete hedge-word deletion list
 - Runs revisions in four ordered layers (content → structure → style → proofreading) instead of mixing them
+- Switches English output to a Guardian-style editorial register without changing the genre underneath
+- Strips AI-writing tells in a final pass while holding the established register
 - Produces bilingual output as adaptation rather than translation, with per-variant notes on what changed and why
+
+## The Three Skills
+
+| Skill | Role in the pipeline | Source |
+|---|---|---|
+| `corporate-writing-skills` | Purpose, audience, stakeholder adaptation, genre and structure, revision discipline | This repository |
+| `guardian-style-writing` | English register: narrative progression, restraint, house style (punctuation, numbers, quotes) | This repository |
+| `humanizer` | Final anti-AI pass: removes formulaic phrasing and rhythm without flattening the register | [blader/humanizer](https://github.com/blader/humanizer), MIT |
+
+The pipeline is ordered, not optional:
+
+```text
+[request]
+   │
+   ▼
+1. corporate-writing-skills   Phases 1–3
+   │  purpose, audience, stakeholder layers, genre skeleton
+   ▼
+2. guardian-style-writing     Phase 4, English only
+   │  editorial register, house style, de-jargonising
+   ▼
+3. humanizer                  Phase 5
+   │  remove AI tells, keep the genre intact
+   ▼
+[pre-delivery checklist]
+```
+
+Stages 2 and 3 apply only when the output is English. Chinese output runs stage 1 and then goes straight to the four-layer revision. Each skill also works standalone — pass `--only` to install one.
 
 ## Why It Exists
 
@@ -46,15 +77,35 @@ For high-stakes texts (proposals, crisis statements, public announcements), conf
 ```bash
 # 1. Clone the repository
 git clone https://github.com/IcarusYe12138/corporate-writing-skills.git
+cd corporate-writing-skills
 
-# 2. Install into your agent's skills directory
-cp -R corporate-writing-skills ~/.agents/skills/
+# 2. Install all three skills (default target: ~/.agents/skills)
+./install.sh
 
-# 3. Verify the skill is visible
-ls ~/.agents/skills/corporate-writing-skills/SKILL.md
+# 3. Verify
+ls ~/.agents/skills
 ```
 
-Then ask the agent for the text you need. The skill loads `references/` on demand based on the genre, so you do not need to paste the reference files into context yourself.
+The installer copies `corporate-writing-skills`, `guardian-style-writing`, and `humanizer` into your skills directory. It backs up anything it would overwrite instead of deleting it.
+
+```bash
+# Install into Claude Code's directory instead
+./install.sh --target ~/.claude/skills
+
+# Install just one skill
+./install.sh --only corporate-writing-skills
+
+# Symlink instead of copy, so `git pull` updates the installed skills
+./install.sh --link
+```
+
+Prefer doing it by hand? Copy any directory from `skills/` into your agent's skills folder — no dependencies, no build step, no package manager.
+
+```bash
+cp -R skills/* ~/.agents/skills/
+```
+
+Then ask the agent for the text you need. Each skill loads its `references/` on demand based on the genre, so you do not need to paste reference files into context yourself.
 
 ```text
 Write a data-breach statement for affected customers, regulators, and media.
@@ -80,29 +131,58 @@ Draft a 150-word decision memo to the CEO on a Hong Kong AI customer-service pil
 
 ## Repository Structure
 
-- `SKILL.md`: five-phase workflow, genre routing table, drafting principles, delivery checklist
-- `references/writing-principles.md`: five principles, hedge-word lists, four-layer revision flow
-- `references/stakeholder-canvas.md`: power-interest matrix, salience model, writing canvas, crisis rules
-- `references/genre-templates.md`: eight recurring genres, from business email to ESG narrative
-- `references/proposal-playbook.md`: seven-step framework, one-page rule, common failure modes
-- `references/press-release.md`: press release structure, AP style, dateline conventions
-- `references/c-level-writing.md`: three modes, institutional authorship, Hong Kong's three-layer accountability, BLUF and FIIA
-- `references/social-media-writing.md`: discovery paths, zero-click, GEO, AI disclosure, employee and CEO accounts
-- `references/brand-storytelling.md`: four questions, five elements, hero's journey, failure modes
-- `references/guardian-extension.md`: notes on combining this skill with a Guardian-style English register
+```text
+corporate-writing-skills/
+├── install.sh                  # one-command installer for all three skills
+├── skills/
+│   ├── corporate-writing-skills/
+│   │   ├── SKILL.md            # five-phase workflow, genre routing table, checklist
+│   │   └── references/
+│   │       ├── writing-principles.md      # five principles, hedge words, four-layer revision
+│   │       ├── stakeholder-canvas.md      # PIM, salience model, writing canvas, crisis rules
+│   │       ├── genre-templates.md         # eight genres, email to ESG narrative
+│   │       ├── proposal-playbook.md       # seven-step framework, one-page rule
+│   │       ├── press-release.md           # structure, AP style, datelines
+│   │       ├── c-level-writing.md         # three modes, authorship, BLUF, FIIA
+│   │       ├── social-media-writing.md    # discovery paths, zero-click, GEO, AI disclosure
+│   │       ├── brand-storytelling.md      # five elements, hero's journey, failure modes
+│   │       └── guardian-extension.md      # how the three skills divide the work
+│   ├── guardian-style-writing/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   │       ├── house-style.md             # punctuation, numbers, caps, quotes
+│   │       ├── narrative.md               # narrative progression and restraint
+│   │       └── apply-without-newsroom.md  # using the register outside journalism
+│   └── humanizer/                         # MIT, by Siqi Chen
+│       ├── SKILL.md
+│       ├── LICENSE
+│       ├── README.md
+│       └── WARP.md
+├── LICENSE
+└── README.md / README.zh-CN.md / README.zh-TW.md
+```
 
 ## Design Notes
 
-**Reference files load on demand.** `SKILL.md` holds the workflow and the routing table; the eight reference files hold genre-specific depth. An agent reads only what the task needs.
+**Reference files load on demand.** Each `SKILL.md` holds the workflow and routing table; the reference files hold genre-specific depth. An agent reads only what the task needs.
 
 **The routing table is the core artefact.** Knowing that a crisis statement is not a press release, and that a brand story is not a company history, prevents more bad corporate writing than any list of style rules.
 
 **Facts are never invented.** Missing data becomes an explicit `[待填：XXX]` placeholder. Simulated or practice scenarios must be labelled as such. Numbers without a traceable source are treated as a liability, not as support.
 
-**Optional companions are not prerequisites.** The skill references `guardian-style-writing` for a Guardian English register and `humanizer` for a final anti-AI pass. Both are enhancements; the five-phase workflow and the four-layer revision run without them.
+**The three skills degrade cleanly.** `guardian-style-writing` and `humanizer` are enhancements to the English path, bundled here so that one clone is self-sufficient. If you install only `corporate-writing-skills`, the five-phase workflow and the four-layer revision still run; the skill notes in delivery that no Guardian or anti-AI pass was applied.
+
+**Bundled code keeps its own licence.** `humanizer` is redistributed unmodified under the MIT licence of its author, with the original `LICENSE` file intact. This repository's own MIT licence covers `corporate-writing-skills` and `guardian-style-writing`.
 
 ## Notes
 
 - Templates are structural, not fill-in-the-blank. The skill requires content decisions before it will draft.
 - Bilingual output is produced from a shared information outline, never by translating a finished draft.
 - The internal and external versions of any announcement must share the same facts and commitments. The final test: if the internal brief were published tomorrow, would the external version still be honest?
+- The Guardian register applies to English only. Do not apply British spelling or en-dash conventions to Chinese output, and do not mix AP and Guardian date formats in the same document.
+
+## Credits
+
+- `humanizer` — MIT, [Siqi Chen](https://github.com/blader/humanizer). Redistributed unmodified with its licence intact.
+- `guardian-style-writing` — authored for this bundle, drawing on [The Guardian style guide](https://www.theguardian.com/guardian-observer-style-guide-a).
+- `corporate-writing-skills` — authored for this bundle.

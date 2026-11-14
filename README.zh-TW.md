@@ -8,9 +8,9 @@
 ![Genres](https://img.shields.io/badge/Genres-8%20Templates-2F2FE4?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-2F2FE4?style=flat-square)
 
-企業傳播寫作與審查技能：持份者分析、文體路由、原則化起草、四層修訂——涵蓋商務電郵、內部公告、新聞稿、商業提案、危機聲明、C 層溝通、社交媒體文案與品牌故事。
+企業傳播寫作與審查技能套件：持份者分析、文體路由、原則化起草、四層修訂——涵蓋商務電郵、內部公告、新聞稿、商業提案、危機聲明、C 層溝通、社交媒體文案與品牌故事。內建衛報體例英文語域與去 AI 腔終審，**clone 一次即可直接用**。
 
-以 [MIT 授權條款](LICENSE) 發佈。
+以 [MIT 授權條款](LICENSE) 發佈。內建的 `humanizer` 採用 [Siqi Chen](https://github.com/blader/humanizer) 的 MIT 授權，原始授權保留於 `skills/humanizer/LICENSE`。
 
 `Corporate Writing Skills` 把企業寫作視為**傳播設計**，而非文字潤飾。順序是固定的：目的 → 持份者 → 內容 → 語氣。每個任務走五個階段，唯一不能省的那一步，是決定「誰在讀、讀完要做甚麼」。
 
@@ -18,12 +18,43 @@
 
 ## 它能做甚麼
 
+- 打包三個可組合技能，一次安裝、按固定順序協同運行
 - 透過明確的決策表，把任何企業寫作任務路由到對應的文體範本
 - 起草前執行受眾分析（O1–O5），讓語氣由證據推導而非個人偏好
 - 以權力-利益矩陣與逐群體寫作畫布處理多受眾與危機場景
 - 以五條原則約束初稿，並提供可執行的削弱詞刪除清單
 - 按四層順序修訂（內容 → 結構 → 風格 → 校對），不混著改
+- 把英文輸出切到衛報編輯語域，但不改變底下的文體載體
+- 最後一輪清除 AI 寫作痕跡，同時守住已定語域
 - 雙語輸出做「調適」而非「翻譯」，並逐版本說明關鍵調適點
+
+## 三個技能
+
+| 技能 | 在流水線中的職責 | 來源 |
+|---|---|---|
+| `corporate-writing-skills` | 目的、受眾、持份者適配、文體與結構、修訂紀律 | 本倉庫 |
+| `guardian-style-writing` | 英文語域：敘事推進、用詞克制、報社體例（標點、數字、引語） | 本倉庫 |
+| `humanizer` | 終審去 AI 腔：清除套路短語與公式化節奏，不壓平語域 | [blader/humanizer](https://github.com/blader/humanizer)，MIT |
+
+流水線是有序的，不是可選的：
+
+```text
+[需求]
+   │
+   ▼
+1. corporate-writing-skills   Phase 1–3
+   │  目的、受眾、持份者分層、文體骨架
+   ▼
+2. guardian-style-writing     Phase 4，僅英文
+   │  編輯語域、報社體例、去套話
+   ▼
+3. humanizer                  Phase 5
+   │  去除 AI 痕跡，文體載體不變
+   ▼
+[交付前清單]
+```
+
+第 2、3 階段只在輸出英文時適用。中文輸出走完第 1 階段後直接進入四層修訂。三個技能也都能單獨使用——用 `--only` 只裝其中一個。
 
 ## 為何存在
 
@@ -46,15 +77,35 @@
 ```bash
 # 1. 複製倉庫
 git clone https://github.com/IcarusYe12138/corporate-writing-skills.git
+cd corporate-writing-skills
 
-# 2. 安裝到 agent 的 skills 目錄
-cp -R corporate-writing-skills ~/.agents/skills/
+# 2. 一鍵安裝三個技能（預設目標：~/.agents/skills）
+./install.sh
 
-# 3. 確認技能可見
-ls ~/.agents/skills/corporate-writing-skills/SKILL.md
+# 3. 確認
+ls ~/.agents/skills
 ```
 
-然後直接向 agent 提出寫作需求。技能會按文體按需載入 `references/`，你不需要自己把參考檔案貼進上下文。
+安裝腳本會把 `corporate-writing-skills`、`guardian-style-writing`、`humanizer` 一併複製到你的 skills 目錄。遇到同名目錄時先備份而不是刪除。
+
+```bash
+# 裝到 Claude Code 的目錄
+./install.sh --target ~/.claude/skills
+
+# 只裝其中一個技能
+./install.sh --only corporate-writing-skills
+
+# 用符號連結而不是複製，之後 git pull 就能同步更新
+./install.sh --link
+```
+
+想手動安裝也行——把 `skills/` 下的任意目錄複製進 agent 的 skills 資料夾即可，沒有依賴、沒有建置步驟、沒有套件管理員。
+
+```bash
+cp -R skills/* ~/.agents/skills/
+```
+
+然後直接向 agent 提出寫作需求。每個技能會按文體按需載入自己的 `references/`，你不需要自己把參考檔案貼進上下文。
 
 ```text
 為受影響客戶、監管機構和媒體寫一份資料外洩聲明。
@@ -80,30 +131,58 @@ ls ~/.agents/skills/corporate-writing-skills/SKILL.md
 
 ## 倉庫結構
 
-- `SKILL.md`：五階段工作流程、文體路由表、起草原則、交付清單
-- `references/writing-principles.md`：五條原則、削弱詞清單、四層修訂流程
-- `references/stakeholder-canvas.md`：權力-利益矩陣、顯著性模型、寫作畫布、危機規則
-- `references/genre-templates.md`：八種高頻文體，從商務電郵到 ESG 敘事
-- `references/proposal-playbook.md`：七步框架、一頁原則、常見失敗模式
-- `references/press-release.md`：新聞稿結構、美聯社體例、電頭規範
-- `references/c-level-writing.md`：三種模式、機構性署名、香港三層問責、BLUF 與 FIIA
-- `references/social-media-writing.md`：發現路徑、零點擊、GEO、AI 披露、員工與 CEO 帳號
-- `references/brand-storytelling.md`：四個問題、五要素、英雄之旅、失敗模式
-- `references/guardian-extension.md`：與衛報體例英文語域協同的規則
-- `LICENSE`：MIT
+```text
+corporate-writing-skills/
+├── install.sh                  # 三個技能的一鍵安裝腳本
+├── skills/
+│   ├── corporate-writing-skills/
+│   │   ├── SKILL.md            # 五階段工作流程、文體路由表、交付清單
+│   │   └── references/
+│   │       ├── writing-principles.md      # 五條原則、削弱詞、四層修訂
+│   │       ├── stakeholder-canvas.md      # PIM、顯著性模型、寫作畫布、危機規則
+│   │       ├── genre-templates.md         # 八種文體，從電郵到 ESG 敘事
+│   │       ├── proposal-playbook.md       # 七步框架、一頁原則
+│   │       ├── press-release.md           # 結構、美聯社體例、電頭
+│   │       ├── c-level-writing.md         # 三種模式、署名、BLUF、FIIA
+│   │       ├── social-media-writing.md    # 發現路徑、零點擊、GEO、AI 披露
+│   │       ├── brand-storytelling.md      # 五要素、英雄之旅、失敗模式
+│   │       └── guardian-extension.md      # 三技能如何分工
+│   ├── guardian-style-writing/
+│   │   ├── SKILL.md
+│   │   └── references/
+│   │       ├── house-style.md             # 標點、數字、大小寫、引號
+│   │       ├── narrative.md               # 敘事推進與克制
+│   │       └── apply-without-newsroom.md  # 在新聞業之外使用該語域
+│   └── humanizer/                         # MIT，作者 Siqi Chen
+│       ├── SKILL.md
+│       ├── LICENSE
+│       ├── README.md
+│       └── WARP.md
+├── LICENSE
+└── README.md / README.zh-CN.md / README.zh-TW.md
+```
 
 ## 設計說明
 
-**參考檔案按需載入。** `SKILL.md` 承擔工作流程與路由表，八個參考檔案承擔文體級深度。Agent 只讀任務需要的那一份。
+**參考檔案按需載入。** 每個 `SKILL.md` 承擔工作流程與路由表，參考檔案承擔文體級深度。Agent 只讀任務需要的那一份。
 
 **路由表是核心資產。** 知道危機聲明不是新聞稿、品牌故事不是公司史，比任何風格規則清單都更能攔住糟糕的企業寫作。
 
 **事實從不虛構。** 缺失資料寫成明確的 `[待填：XXX]` 佔位符；模擬或練習場景必須標註。沒有可追溯來源的數字按負債處理，而不是按論據處理。
 
-**可選協同不是前置條件。** 技能可調用 `guardian-style-writing` 提供衛報英文語域、`humanizer` 做最後的去 AI 腔。兩者都是增強項；五階段工作流程與四層修訂在缺少它們時照常運行。
+**三個技能可以單獨降級運行。** `guardian-style-writing` 與 `humanizer` 是英文路徑上的增強項，打包進來是為了讓一次 clone 就自足。如果只裝了 `corporate-writing-skills`，五階段工作流程與四層修訂照常運行，並在交付時說明未做衛報體例與去 AI 腔終審。
+
+**內建程式碼保留原有授權。** `humanizer` 按作者 MIT 授權原樣再分發，原始 `LICENSE` 完整保留。本倉庫自己的 MIT 授權覆蓋 `corporate-writing-skills` 與 `guardian-style-writing`。
 
 ## 備註
 
 - 範本是結構性的，不是填空題。技能要求先做內容決策才肯起草。
 - 雙語輸出從共享的資訊大綱產生，絕不透過翻譯已完成稿得到。
 - 任何公告的內部版與對外版必須共享同一批事實與承諾。終測：如果內部簡報明天被公開，對外版本是否仍然誠實？
+- 衛報語域只作用於英文。不要給中文輸出套英式拼寫或 en dash，也不要在同一篇裡混用美聯社與衛報的日期格式。
+
+## 致謝
+
+- `humanizer` —— MIT，[Siqi Chen](https://github.com/blader/humanizer)。原樣再分發，授權完整保留。
+- `guardian-style-writing` —— 為本套件撰寫，取材自 [The Guardian style guide](https://www.theguardian.com/guardian-observer-style-guide-a)。
+- `corporate-writing-skills` —— 為本套件撰寫。
